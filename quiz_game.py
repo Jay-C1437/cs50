@@ -1,50 +1,74 @@
-#python quiz game 
 
-questions = ("How many continents are there in the world?:" ,
-             "Which animal lays the largest eggs?:",
-             "What is the most abudant gas in the earth's atmosphere?:",
-             "How many bones are there in the human body?:",
-             "Which planet in the solar system is the hottest?:",)
+import tkinter as tk
+from tkinter import messagebox
+import random
 
-options = (("A. 116", "B. 117", "C. 118", "D. 119"),
-           ("A. Whale", "B. Crocodile", "C. Elephant", "D. Ostrich"),
-           ("A. Nitrogen", "B. Oxygen", "C. Carbon dioxide", "D. Hydrogen"),
-           ("A. 206", "B. 207", "C. 208", "D. 209"),
-           ("A. Mercury", "B. Venus", "C. Earth", "D. Mars"))
+# List of questions and answers
+quiz_data = [
+    {"question": "What is the capital of France?", "answers": ["Berlin", "Madrid", "Paris", "Rome"], "correct": "Paris"},
+    {"question": "What is 2 + 2?", "answers": ["3", "4", "5", "6"], "correct": "4"},
+    {"question": "What is the capital of Italy?", "answers": ["Venice", "Milan", "Rome", "Naples"], "correct": "Rome"},
+    # Add more questions as needed
+]
 
-answers = ("C", "D", "A", "A", "B")
-guesses = []
+# Initialize score and question index
 score = 0
-question_num = 0
+question_index = 0
 
-for question in questions:
-    print("-----------------------------")
-    print(question)
-    for option in options[question_num]:
-        print(option)
-
-    guess = input("Enter(A, B, C, D): ").upper()
-    guesses.append(guess)
-    if guess == answers[question_num]:
-       score += 1
-       print("CORRECT!")
+# Function to load the next question
+def load_next_question():
+    global question_index
+    if question_index < len(quiz_data):
+        question_data = quiz_data[question_index]
+        question_label.config(text=question_data["question"])
+        answer_var.set(None)
+        for i, answer in enumerate(question_data["answers"]):
+            radio_buttons[i].config(text=answer, value=answer)
     else:
-        print("INCORRECT!")
-    print(f"{answers[question_num]} is the correct answer.")
-        
-    question_num += 1
+        messagebox.showinfo("Quiz Completed", f"Your score is {score}/{len(quiz_data)}")
+        restart_quiz()
 
-    print("-----------------------------")
-    print("          RESULTS            ")
-    print("-----------------------------")
+# Function to check the answer
+def check_answer():
+    global score, question_index
+    selected_answer = answer_var.get()
+    if selected_answer == quiz_data[question_index]["correct"]:
+        score += 1
+    question_index += 1
+    load_next_question()
 
-    print("answers: ",  end="")
-    for answer in answers:
-        print(answer, end="")
-print()
+# Function to restart the quiz
+def restart_quiz():
+    global score, question_index
+    score = 0
+    question_index = 0
+    load_next_question()
 
-print("guesses: ", end="")
-for guess in guesses:
-    print(guess, end="")
-print()
+# Create the main window
+root = tk.Tk()
+root.title("Quiz Game")
+root.configure(bg="lightblue")
 
+# Create a label for the question
+question_label = tk.Label(root, text="", font=("Arial", 14), bg="lightblue")
+question_label.pack(pady=10)
+
+# Variable to store the selected answer
+answer_var = tk.StringVar()
+
+# Create radio buttons for each answer
+radio_buttons = []
+for _ in range(4):
+    radio_button = tk.Radiobutton(root, text="", variable=answer_var, value="", font=("Arial", 12), bg="lightblue")
+    radio_button.pack(anchor='w')
+    radio_buttons.append(radio_button)
+
+# Create a button to submit the answer
+submit_button = tk.Button(root, text="Submit", command=check_answer, font=("Arial", 12), bg="green", fg="white")
+submit_button.pack(pady=10)
+
+# Load the first question
+load_next_question()
+
+# Run the main event loop
+root.mainloop()
